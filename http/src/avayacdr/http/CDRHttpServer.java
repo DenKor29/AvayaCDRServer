@@ -31,7 +31,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
     public CDRHttpServer(ApplicationServerListener eventListener,CDRHttpServerListener httpServerListener) {
        this.event = eventListener;
        this.eventcdr = httpServerListener;
-        app = new ApplicationServer(this,"Http Server");
+       app = new ApplicationServer(this,"Http Server");
 
     }
 
@@ -115,10 +115,15 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
     public synchronized void SendResponseConnection(HTTPRequest httpRequest,ArrayList <AvayCDRData> cdrData){
 
         HTTPConnection httpConnection = httpRequest.getConnection();
+        String codeResponse = "200 OK";
+        String mimetype ="text/plain";
+
         String path = httpRequest.GetPatch() ;
+        if (path.endsWith(".html")) mimetype = "text/html; charset=utf-8";
+        if (path.endsWith(".js")) mimetype = "text/javascript; charset=utf-8";
+        if (path.equals("www"+File.separator)) mimetype = "text/html; charset=utf-8";
         String filetext = GetCDRResponse(path, cdrData);
 
-        String codeResponse = "200 OK";
 
         if (filetext.isEmpty()){
 
@@ -135,12 +140,17 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
             e.printStackTrace();
         }
 
-        String header = GetDefaultHeader(httpRequest);
-        header = header + GetFileHeader(count);
+        HTTPResponse httpResponse = new HTTPResponse(codeResponse,filetext);
+        httpResponse.SetHeaders("Date",GetLocalTimeHttpServer(LocalDateTime.now()));
+        httpResponse.SetHeaders("Content-Type",mimetype);
+        httpResponse.SetHeaders("Connection","close");
+        httpResponse.SetHeaders("Server","HTTP Server Avaya S8500");
+        httpResponse.SetHeaders("Last-Modified",GetLocalTimeHttpServer(LocalDateTime.now()));
+        httpResponse.SetHeaders("Content-Length",""+count);
 
-        String response = GetStatusResponse(codeResponse)
-                + header+ "\n\n"
-                + filetext ;
+
+
+        String response = httpResponse.GetResponse();
 
         httpConnection.sendString(response);
         System.out.println(response);
@@ -172,33 +182,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         return result;
     }
 
-    private String GetDefaultHeader(HTTPRequest httpRequest){
 
-        String mimetype ="text/plain";
-        String filename = httpRequest.GetPatch();
-        if (filename.endsWith(".html")) mimetype = "text/html; charset=utf-8";
-        if (filename.endsWith(".js")) mimetype = "text/javascript; charset=utf-8";
-        if (filename.equals("www"+File.separator)) mimetype = "text/html; charset=utf-8";
-
-        String response = "Date: " + GetLocalTimeHttpServer(LocalDateTime.now()) + "\n"
-                    + "Content-Type: "+ mimetype+"\n"
-                    + "Connection: close\n"
-                    + "Server: HTTP Server Avaya S8500\n";
-                    //+ "Pragma: no-cache\n";
-        return response;
-    }
-
-    private String GetFileHeader(int count)
-    {
-        String     response = "Last-Modified: " + GetLocalTimeHttpServer(LocalDateTime.now()) + "\n"
-                    +  "Content-Length: " + count + "\n";
-        return response;
-    }
-
-    private String GetStatusResponse(String value) {
-        String response = "HTTP/1.1 " + value + "\n";
-        return response;
-    }
 
 
 
