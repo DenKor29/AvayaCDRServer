@@ -8,46 +8,10 @@
 </head>
 
 <body>
-<form name="finddate" method="get">
-  <p><b>День:</b>
-   <input type="text" id="day" name="day" value="$finddate.day$" size="2">
-   <b>Месяц:</b>
-   <input type="text" id="month" name="month" value="$finddate.month$"  size="2">
-   <b>Год:</b>
-   <input type="text" id="year" name="year" value="$finddate.year$" size="4">
-  </p>
-  <p><input type="submit" value="Применить">
-   <input type="reset" value="Сбросить"></p>
- </form>
-<h1> Мониторинг за текущие сутки </h1> 
-<table border="1" cellpadding="15" id="table_cdr" class="sort">
- <thead>  
- <tr>
- <td> №  </td>
- <td> Дата Время  </td>
- <td> Исходящий </td> 
- <td> Входящий </td> 
- <td> Длительность в сек. </td>
- <td> Cond Code </td>
- <td> Code Dial</td>
- <td> Code Used</td>
- <td> In Trk Code</td>
- <td> Acct Code</td>
- <td> Auth Code</td>
- <td> Frl</td>
- <td> Ixc Code</td>
- <td> In Crt Id</td>
- <td> Out Crt Id</td>
- <td> Feat Flag</td>
- <td> Return</td>
- <td> Line Feed</td>
- </tr>
- <tbody>
- $BaseCDRList$ 
- </tbody>
- </thead> 
-</table>
-<h1> Avaya S8500 </h1>
+
+<h1> <a href="finddate.html"> Find Date </a> </h1> 
+<h1> <a href="findnumber.html"> Find Number </a></h1> 
+
 </body>
 </html>
 

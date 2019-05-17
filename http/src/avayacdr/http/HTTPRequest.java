@@ -1,7 +1,7 @@
 package avayacdr.http;
 
 import java.io.File;
-import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 public class HTTPRequest {
@@ -13,6 +13,18 @@ public class HTTPRequest {
     private int day;
     private int month;
     private int year;
+
+    private String key;
+    private String value;
+
+    public String getKey() {
+        return key;
+    }
+
+
+    public String getValue() {
+        return value;
+    }
 
 
     public int getDay() {
@@ -38,9 +50,24 @@ public class HTTPRequest {
 
         SetParameters(request);
 
-        this.day = GetParameters("day");
-        this.month = GetParameters("month");
-        this.year = GetParameters("year");
+        this.day = GetParametersInt("day");
+        this.month = GetParametersInt("month");
+        this.year = GetParametersInt("year");
+        this.key = GetParameters("key");
+        this.value = GetParameters("value");
+
+        if (day == 0 || month ==0 || year == 0) {
+            LocalDateTime time = LocalDateTime.now();
+            this.day = time.getDayOfMonth();
+            this.month = time.getMonthValue();
+            this.year = time.getYear();
+
+        }
+        if (key.isEmpty() || value.isEmpty()) {
+            this.key = "CallingNumber";
+            this.value = "7352";
+
+        }
 
     }
 
@@ -48,11 +75,16 @@ public class HTTPRequest {
         return connection;
     }
 
-    public int GetParameters(String name){
+    private String GetParameters(String name){
+        if (parameters.get(name) == null) return "";
+        return  parameters.get(name).trim();
+    }
+
+    public int GetParametersInt(String name){
 
         int result;
         try {
-           result = Integer.parseInt(parameters.get(name));
+           result = Integer.parseInt(GetParameters(name));
         } catch (NumberFormatException e){
             result = 0;
         }
@@ -124,8 +156,10 @@ public class HTTPRequest {
         String[] listParameters = URI.split("&");
         for (String param:listParameters){
             String[] listNames = param.split("=");
-            for (int j=0;j<listNames.length;j=j+2)
-                parameters.put(listNames[j],listNames[j+1]);
+            for (int j=0;j<listNames.length;j=j+2) {
+                if ((j + 1) >= listNames.length) break;
+                parameters.put(listNames[j], listNames[j + 1]);
+            }
 
         }
 

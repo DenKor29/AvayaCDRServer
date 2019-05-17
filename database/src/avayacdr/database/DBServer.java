@@ -1,7 +1,6 @@
 package avayacdr.database;
 
 import avayacdr.core.AvayCDRData;
-import avayacdr.core.BaseCDRData;
 import avayacdr.http.HTTPRequest;
 
 import java.sql.*;
@@ -161,9 +160,20 @@ public class DBServer implements DBConnectionListener {
         String BeginDate = LocalDateTimeToString(BeginTime);
         String EndDate = LocalDateTimeToString(EndTime);
 
-        System.out.println("DBServer Find String " + nameTable + " ...");
-        String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable + " WHERE Date BETWEEN '" +
-                BeginDate +"' AND '" + EndDate +"';";
+        String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable
+                + " WHERE Date BETWEEN '" +             BeginDate +"' AND '" + EndDate +"';";
+
+        sendQuery(httpRequest,query,false);
+    }
+    public void FindFieldTable(HTTPRequest httpRequest,String Field, String Key)
+    {
+        //Не запускаем общие методы без полной инициализации класса
+        if (!status) return;
+
+
+
+        String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable
+                + " WHERE " + Field +" = '" + Key +"';";
 
         sendQuery(httpRequest,query,false);
     }
