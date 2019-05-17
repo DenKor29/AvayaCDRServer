@@ -233,4 +233,9 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
     public void onFindDBDateZapros(HTTPRequest httpRequest, LocalDateTime BeginTime, LocalDateTime EndTime) {
      dbServer.FindDateTimeTable(httpRequest,BeginTime,EndTime);
     }
+
+    @Override
+    public void onFindDBFieldZapros(HTTPRequest httpRequest, String Key, String Value) {
+     dbServer.FindFieldTable(httpRequest,Key,Value);
+    }
 }

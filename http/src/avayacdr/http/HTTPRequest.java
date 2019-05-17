@@ -17,6 +17,18 @@ public class HTTPRequest {
     private String key;
     private String value;
 
+
+    public String getMimeType() {
+
+        String mimetype="text/plain";
+
+        if (path.endsWith(".html")) mimetype = "text/html; charset=utf-8";
+        if (path.endsWith(".js")) mimetype = "text/javascript; charset=utf-8";
+        if (path.equals("www"+File.separator)) mimetype = "text/html; charset=utf-8";
+
+        return mimetype;
+    }
+
     public String getKey() {
         return key;
     }
@@ -65,7 +77,7 @@ public class HTTPRequest {
         }
         if (key.isEmpty() || value.isEmpty()) {
             this.key = "CallingNumber";
-            this.value = "7352";
+            this.value = "";
 
         }
 

@@ -5,8 +5,10 @@ import avayacdr.application.ApplicationServerListener;
 import avayacdr.core.AvayCDRData;
 import avayacdr.core.BaseCDRData;
 import avayacdr.network.TCPConnection;
+import sun.awt.SunHints;
 
 import java.io.*;
+import java.security.Key;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -99,16 +101,26 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
         System.out.println(httpConnection.GetRequest()+"\r\n");
         HTTPRequest httpRequest = new HTTPRequest(httpConnection) ;
-        int day = httpRequest.getDay();
-        int month = httpRequest.getMonth();
-        int year = httpRequest.getYear();
-        String key = httpRequest.getKey();
-        String value = httpRequest.getValue();
+        String path = httpRequest.GetPatch() ;
 
 
-        LocalDateTime EndTime = LocalDateTime.now();
-        if ((day != 0) && (month !=0) && (year !=0)) EndTime=LocalDateTime.of(year,month,day,0,0).minusDays(-1);
-        this.eventcdr.onFindDBDateZapros(httpRequest,EndTime.minusDays(1),EndTime.minusSeconds(1));
+        if (path.endsWith("finddate.html"))
+        {
+            int day = httpRequest.getDay();
+            int month = httpRequest.getMonth();
+            int year = httpRequest.getYear();
+            LocalDateTime EndTime = LocalDateTime.now();
+            if ((day != 0) && (month !=0) && (year !=0)) EndTime=LocalDateTime.of(year,month,day,0,0).minusDays(-1);
+            eventcdr.onFindDBDateZapros(httpRequest,EndTime.minusDays(1),EndTime.minusSeconds(1));
+
+        } else if (path.endsWith("findnumber.html")) {
+
+            String key = httpRequest.getKey().trim();
+            String value = httpRequest.getValue().trim();
+            eventcdr.onFindDBFieldZapros(httpRequest, key, value);
+        } else SendResponseConnection(httpRequest,null);
+
+
 
 
     }
@@ -116,42 +128,59 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
     public synchronized void SendResponseConnection(HTTPRequest httpRequest,ArrayList <AvayCDRData> cdrData){
 
         HTTPConnection httpConnection = httpRequest.getConnection();
-        String codeResponse = "200 OK";
-        String mimetype ="text/plain";
+        String ResponseBody = "";
+
+
 
         String path = httpRequest.GetPatch() ;
-        if (path.endsWith(".html")) mimetype = "text/html; charset=utf-8";
-        if (path.endsWith(".js")) mimetype = "text/javascript; charset=utf-8";
-        if (path.equals("www"+File.separator)) mimetype = "text/html; charset=utf-8";
-        String filetext = GetCDRResponse(httpRequest,cdrData);
+        if (path.equals("www"+File.separator )) path += "index.html";
+
         File file = new File(path);
+        HTTPResponse httpResponse = new HTTPResponse();
+        ResponseBody = GetFileResponse(path);
+        httpResponse.setBody(ResponseBody);
+
+        if (!file.exists() || ResponseBody.isEmpty()){
+
+            ResponseBody  = "File " + path +" not found!!!\n";
+            httpResponse.SetResponseCode("404 Not Found");
+
+        } else {
+
+            if (path.endsWith(".html"))
+            {
 
 
-        if (!file.exists() || filetext.isEmpty()){
+                if (cdrData != null) {
+                    ResponseBody = ResponseBody.replace("$COUNTCDR$", "" + cdrData.size());
+                    ResponseBody = ResponseBody.replace("$BaseCDRList$", GetCDRResponse(cdrData));
+                }
 
-            codeResponse = "404 Not Found";
-            filetext = "File " + path +" not found!!!\n";
-
+                ResponseBody = ResponseBody.replace("$finddate.day$" ,""+httpRequest.getDay());
+                ResponseBody = ResponseBody.replace("$finddate.month$",""+httpRequest.getMonth());
+                ResponseBody = ResponseBody.replace("$finddate.year$",""+httpRequest.getYear());
+                ResponseBody = ResponseBody.replace("$findnumber.key$",""+httpRequest.getKey());
+                ResponseBody = ResponseBody.replace("$findnumber.value$",""+httpRequest.getValue());
+            };
+            httpResponse.setBody(ResponseBody) ;
         }
 
-        int count = 0;
-
+        int countBody = 0;
         try {
-            count = filetext.getBytes("UTF-8").length;
+            countBody = ResponseBody.getBytes("UTF-8").length;
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+            countBody = 0;
+        };
 
         LocalDateTime lastModifed = Instant.ofEpochMilli(file.lastModified()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        HTTPResponse httpResponse = new HTTPResponse(codeResponse,filetext);
         httpResponse.SetHeaders("Date",GetLocalTimeHttpServer(LocalDateTime.now()));
-        httpResponse.SetHeaders("Content-Type",mimetype);
+        httpResponse.SetHeaders("Content-Type",httpRequest.getMimeType());
         httpResponse.SetHeaders("Cache-Control","no-cache");
         httpResponse.SetHeaders("Connection","close");
         httpResponse.SetHeaders("Server","HTTP Server Avaya S8500");
         httpResponse.SetHeaders("Last-Modified",GetLocalTimeHttpServer(lastModifed));
-        httpResponse.SetHeaders("Content-Length",""+count);
+        httpResponse.SetHeaders("Content-Length",""+countBody);
 
 
 
@@ -159,13 +188,11 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
         httpConnection.sendString(response);
         System.out.println(response);
-        cdrData.clear();
-        cdrData = null;
         file = null;
-
-
-
+        httpResponse = null;
     }
+
+
 
     private String GetLocalTimeHttpServer(LocalDateTime dateTime){
 
@@ -234,7 +261,36 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         return "";
     }
 
-    private String GetCDRResponse(HTTPRequest httpRequest, ArrayList <AvayCDRData> cdrData) {
+    private String GetCDRResponse(ArrayList <AvayCDRData> cdrData) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (cdrData == null) return "";
+
+        int cnt = cdrData.size();
+        for (int i = 0; i < cnt; i++) {
+            stringBuilder.append(" <tr> ");
+            stringBuilder.append("<th>"+(i+1)+"</th> ");
+            stringBuilder.append("<th>"+GetLocalTimeHttpClient(cdrData.get(i).date)+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).calledNumber.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).callingNumber.trim()+"</th> ");
+            stringBuilder.append("<th>"+(""+cdrData.get(i).duration*6).trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).cond_code.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).code_dial.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).code_used.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).in_trk_code.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).acct_code.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).auth_code.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).frl.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).ixc_code.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).in_crt_id.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).out_crt_id.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).feat_flag.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).code_return.trim()+"</th> ");
+            stringBuilder.append("<th>"+cdrData.get(i).line_feed.trim()+"</th> ");
+            stringBuilder.append(" </tr> ");
+        };
+        return stringBuilder.toString();
+    }
+        private String GetBodyResponse(HTTPRequest httpRequest, ArrayList <AvayCDRData> cdrData) {
 
         String filename=httpRequest.GetPatch();
 
