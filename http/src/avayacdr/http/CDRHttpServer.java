@@ -3,22 +3,24 @@ package avayacdr.http;
 import avayacdr.application.ApplicationServer;
 import avayacdr.application.ApplicationServerListener;
 import avayacdr.core.AvayCDRData;
-import avayacdr.core.BaseCDRData;
 import avayacdr.network.TCPConnection;
-import sun.awt.SunHints;
 
 import java.io.*;
-import java.security.Key;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Locale;
 
-import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+import static java.nio.file.Files.readAllBytes;
 
 public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionListener{
 
@@ -137,7 +139,13 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
         File file = new File(path);
         HTTPResponse httpResponse = new HTTPResponse();
-        ResponseBody = GetFileResponse(path);
+
+        if (path.endsWith(".ico")) {
+            ResponseBody = GetFileResponse(path);
+            httpResponse.SetHeaders("Content-Transfer-Encoding","base64");
+        }
+        else     ResponseBody = GetFileTextResponse(path);
+
         httpResponse.setBody(ResponseBody);
 
         if (!file.exists() || ResponseBody.isEmpty()){
@@ -174,13 +182,13 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
         LocalDateTime lastModifed = Instant.ofEpochMilli(file.lastModified()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        httpResponse.SetHeaders("Date",GetLocalTimeHttpServer(LocalDateTime.now()));
-        httpResponse.SetHeaders("Content-Type",httpRequest.getMimeType());
-        httpResponse.SetHeaders("Cache-Control","no-cache");
-        httpResponse.SetHeaders("Connection","close");
-        httpResponse.SetHeaders("Server","HTTP Server Avaya S8500");
         httpResponse.SetHeaders("Last-Modified",GetLocalTimeHttpServer(lastModifed));
         httpResponse.SetHeaders("Content-Length",""+countBody);
+        httpResponse.SetHeaders("Cache-Control","no-cache");
+        httpResponse.SetHeaders("Content-Type",httpRequest.getMimeType());
+        httpResponse.SetHeaders("Connection","close");
+        httpResponse.SetHeaders("Date",GetLocalTimeHttpServer(LocalDateTime.now()));
+        httpResponse.SetHeaders("Server","HTTP Server Avaya S8500");
 
 
 
@@ -219,7 +227,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
 
 
-    private String GetFileResponse(String file) {
+    private String GetFileTextResponse(String file) {
 
         BufferedReader reader = null;
 
@@ -260,7 +268,21 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
         return "";
     }
+    private String GetFileResponse(String filename) {
 
+        Path path = Paths.get(filename);
+
+        try {
+            byte[] bytes = Files.readAllBytes(path);
+            byte[] bytes64 = Base64.getEncoder().encode(bytes);
+            String StrBase64 = new String(bytes64);
+            return StrBase64+"\n";
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
     private String GetCDRResponse(ArrayList <AvayCDRData> cdrData) {
         StringBuilder stringBuilder = new StringBuilder();
         if (cdrData == null) return "";
@@ -297,7 +319,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         if (filename.equals("www"+File.separator)) filename += "index.html";
         System.out.println("Filename = " +filename);
 
-        String Response = GetFileResponse(filename);
+        String Response = GetFileTextResponse(filename);
 
         if (filename.endsWith("finddate.html")|| filename.endsWith("findnumber.html")) {
         StringBuilder stringBuilder = new StringBuilder();

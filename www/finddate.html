@@ -2,13 +2,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Avaya Monitoring S8500</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
     <script type="text/javascript" src="js/tablesorter.js" defer></script>
     <script type="text/javascript" src="js/main.js" defer></script>
 
 </head>
 
 <body>
-<form name="finddate" method="get">
+<h1> <a href="index.html">Оглавление.</a> </h1>
+<br>
+
+<form name="finddate" method="get" style="border:3px double">
   <p><b>День:</b>
    <input type="text" id="day" name="day" value="$finddate.day$" size="2">
    <b>Месяц:</b>
@@ -20,6 +24,8 @@
    <input type="reset" value="Сбросить"></p>
  </form>
 <h1> Мониторинг. Количество записей: $COUNTCDR$. </h1> 
+ 
+
 <table border="1" cellpadding="15" id="table_cdr" class="sort">
  <thead>  
  <tr>
