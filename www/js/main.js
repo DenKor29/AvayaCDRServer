@@ -1,16 +1,18 @@
 $("#table_cdr").trigger("update");
 TableSorter.sort_column("table_cdr",1,1);
 
-function anichange() 
+function anichange(str) 
 {
   var objName = "";
-  switch (this.id)
+  
+   switch (str)
 	{
-		case "divDate": objName = "#divIdDate";break;
-		case "divNumber": objName = "#divIdNumber";break;
+		case "divTblDate": objName = "#divIdTblDate";break;
+		case "divTblNumber": objName = "#divIdTblNumber";break;
 		default:return false;
 	};
 	
+ 
  if ( $(objName).css('display') == 'none' ) 
  {
  $(objName).animate({height: 'show'}, 400);
