@@ -67,8 +67,8 @@ tablesorter.prototype._sort = function (a, b) {
 	    
 	var a = a[0];
     var b = b[0];
-    var _a = (a + '').replace(/,/, '.');
-    var _b = (b + '').replace(/,/, '.');
+    var _a = (a + '').replace(/,/, '.').trim();
+    var _b = (b + '').replace(/,/, '.').trim();
     if (parseDateFormat(_a) && parseDateFormat(_b)) return TableSorter.sort_date(a, b);
     else if (parseInt(_a) && parseInt(_b)) return TableSorter.sort_numbers(parseInt(_a), parseInt(_b));
     else if (!this.sort_case_sensitive) return TableSorter.sort_insensitive(a, b);

@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <title>Avaya Monitoring S8500</title>
     <link rel="stylesheet" type="text/css" href="main.css">
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js" defer></script>
     <script type="text/javascript" src="js/tablesorter.js" defer></script>
     <script type="text/javascript" src="js/main.js" defer></script>
 
@@ -25,7 +26,8 @@
  </form>
 <h1> Мониторинг. Количество записей: $COUNTCDR$. </h1> 
  
-
+ <a href="#" id="divDate">Таблица</a>
+ <div id="divIdDate" style="display: none">
 <table border="1" cellpadding="15" id="table_cdr" class="sort">
  <thead>  
  <tr>
@@ -53,6 +55,8 @@
  $BaseCDRList$ 
  </tbody>
 </table>
+</div>
+
 <h1> Avaya S8500 </h1>
 </body>
 </html>

@@ -197,7 +197,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
         httpResponse.SetHeaders("Last-Modified",GetLocalTimeHttpServer(lastModifed));
         httpResponse.SetHeaders("Content-Length",""+countBody);
-        //httpResponse.SetHeaders("Cache-Control","no-cache");
+        httpResponse.SetHeaders("Cache-Control","no-cache");
         httpResponse.SetHeaders("Content-Type",httpRequest.getMimeType());
         httpResponse.SetHeaders("Connection","close");
         httpResponse.SetHeaders("Date",GetLocalTimeHttpServer(LocalDateTime.now()));
