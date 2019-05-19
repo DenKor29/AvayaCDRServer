@@ -8,6 +8,8 @@ import avayacdr.network.TCPConnection;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,9 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Locale;
+import java.util.*;
 
 import static java.nio.file.Files.readAllBytes;
 
@@ -130,8 +130,9 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
     public synchronized void SendResponseConnection(HTTPRequest httpRequest,ArrayList <AvayCDRData> cdrData){
 
         HTTPConnection httpConnection = httpRequest.getConnection();
-        String ResponseBody = "";
-
+        String ResponseTextBody = "";
+        byte[] ResponseBody = null;
+        int countBody = 0;
 
 
         String path = httpRequest.GetPatch() ;
@@ -140,18 +141,27 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         File file = new File(path);
         HTTPResponse httpResponse = new HTTPResponse();
 
-        if (path.endsWith(".ico")) {
+        if (path.endsWith(".ico")|| path.endsWith(".png")) {
             ResponseBody = GetFileResponse(path);
-            httpResponse.SetHeaders("Content-Transfer-Encoding","base64");
+            if (ResponseBody != null) {
+                countBody = ResponseBody.length;
+            } else
+            {
+                ResponseTextBody  = "File " + path +" not found!!!\n";
+                httpResponse.SetResponseCode("404 Not Found");
+                countBody = GetBytesResponse(ResponseTextBody);
+            }
         }
-        else     ResponseBody = GetFileTextResponse(path);
+        else    {
 
-        httpResponse.setBody(ResponseBody);
+            ResponseTextBody = GetFileTextResponse(path);
 
-        if (!file.exists() || ResponseBody.isEmpty()){
 
-            ResponseBody  = "File " + path +" not found!!!\n";
+        if (ResponseTextBody == null || ResponseTextBody.isEmpty()){
+
+            ResponseTextBody  = "File " + path +" not found!!!\n";
             httpResponse.SetResponseCode("404 Not Found");
+            countBody = GetBytesResponse(ResponseTextBody);
 
         } else {
 
@@ -160,31 +170,34 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
 
                 if (cdrData != null) {
-                    ResponseBody = ResponseBody.replace("$COUNTCDR$", "" + cdrData.size());
-                    ResponseBody = ResponseBody.replace("$BaseCDRList$", GetCDRResponse(cdrData));
+                    ResponseTextBody = ResponseTextBody.replace("$COUNTCDR$", "" + cdrData.size());
+                    ResponseTextBody = ResponseTextBody.replace("$BaseCDRList$", GetCDRResponse(cdrData));
                 }
 
-                ResponseBody = ResponseBody.replace("$finddate.day$" ,""+httpRequest.getDay());
-                ResponseBody = ResponseBody.replace("$finddate.month$",""+httpRequest.getMonth());
-                ResponseBody = ResponseBody.replace("$finddate.year$",""+httpRequest.getYear());
-                ResponseBody = ResponseBody.replace("$findnumber.key$",""+httpRequest.getKey());
-                ResponseBody = ResponseBody.replace("$findnumber.value$",""+httpRequest.getValue());
+                    ResponseTextBody = ResponseTextBody.replace("$findnumber.list$" ,""
+                            +GetFiedListResponse(httpRequest.getKey(),httpRequest.getValue()));
+
+
+                ResponseTextBody = ResponseTextBody.replace("$finddate.day$" ,""+httpRequest.getDay());
+                ResponseTextBody = ResponseTextBody.replace("$finddate.month$",""+httpRequest.getMonth());
+                ResponseTextBody = ResponseTextBody.replace("$finddate.year$",""+httpRequest.getYear());
+                ResponseTextBody = ResponseTextBody.replace("$findnumber.key$",""+httpRequest.getKey());
+                ResponseTextBody = ResponseTextBody.replace("$findnumber.value$",""+httpRequest.getValue());
             };
-            httpResponse.setBody(ResponseBody) ;
+            httpResponse.setBody(ResponseTextBody);
+            countBody = GetBytesResponse(ResponseTextBody);
+        }
         }
 
-        int countBody = 0;
-        try {
-            countBody = ResponseBody.getBytes("UTF-8").length;
-        } catch (UnsupportedEncodingException e) {
-            countBody = 0;
-        };
+
+
+
 
         LocalDateTime lastModifed = Instant.ofEpochMilli(file.lastModified()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         httpResponse.SetHeaders("Last-Modified",GetLocalTimeHttpServer(lastModifed));
         httpResponse.SetHeaders("Content-Length",""+countBody);
-        httpResponse.SetHeaders("Cache-Control","no-cache");
+        //httpResponse.SetHeaders("Cache-Control","no-cache");
         httpResponse.SetHeaders("Content-Type",httpRequest.getMimeType());
         httpResponse.SetHeaders("Connection","close");
         httpResponse.SetHeaders("Date",GetLocalTimeHttpServer(LocalDateTime.now()));
@@ -195,11 +208,22 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         String response = httpResponse.GetResponse();
 
         httpConnection.sendString(response);
+        if (ResponseTextBody.isEmpty()) httpConnection.sendBytes(ResponseBody);
+        else httpConnection.sendString(ResponseTextBody);
         System.out.println(response);
         file = null;
         httpResponse = null;
     }
 
+    private int GetBytesResponse(String value){
+        int count = 0;
+        try {
+            count = value.getBytes("UTF-8").length;
+        } catch (UnsupportedEncodingException e) {
+            count = 0;
+        };
+        return count;
+    }
 
 
     private String GetLocalTimeHttpServer(LocalDateTime dateTime){
@@ -237,10 +261,10 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
                             new FileInputStream(file), "UTF8"));
         } catch (UnsupportedEncodingException e) {
            event.onException(app,e);
-            return "";
+            return null;
         } catch (FileNotFoundException e) {
             event.onException(app,e);
-            return "";
+            return null;
         }
 
 
@@ -266,22 +290,39 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
             }
         }
 
-        return "";
+        return null;
     }
-    private String GetFileResponse(String filename) {
 
-        Path path = Paths.get(filename);
+
+    private byte[] GetFileResponse(String filename) {
+
+        File file = new File(filename);
+        Path path = file.toPath();
 
         try {
-            byte[] bytes = Files.readAllBytes(path);
-            byte[] bytes64 = Base64.getEncoder().encode(bytes);
-            String StrBase64 = new String(bytes64);
-            return StrBase64+"\n";
+            return Files.readAllBytes(path);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return "";
+        return null;
+    }
+
+    private String GetFiedListResponse(String Key,String Value) {
+        StringBuilder stringBuilder = new StringBuilder();
+        HashMap <String,String> list = new HashMap <String,String>();
+        list.put("CallingNumber","Исходящий");
+        list.put("CalledNumber","Входящий");
+
+
+            for (HashMap.Entry<String, String> entry : list.entrySet()) {
+                String strSelect = "";
+                if (entry.getKey().equals(Key) && entry.getValue().equals(Value)) strSelect = "selected ";
+                stringBuilder.append("<option "+strSelect+ "value='"+entry.getKey()+"'>" +entry.getValue()+"</option>");
+            }
+
+        return stringBuilder.toString();
     }
     private String GetCDRResponse(ArrayList <AvayCDRData> cdrData) {
         StringBuilder stringBuilder = new StringBuilder();

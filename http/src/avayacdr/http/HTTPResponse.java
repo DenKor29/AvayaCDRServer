@@ -45,7 +45,7 @@ public class HTTPResponse {
     }
 
     public String GetResponse(){
-    return GetHeaders()+body;
+    return GetHeaders();
     }
 
     public void SetHeaders(String key,String value){

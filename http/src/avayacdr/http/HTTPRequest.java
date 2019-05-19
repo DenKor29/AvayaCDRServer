@@ -26,7 +26,7 @@ public class HTTPRequest {
         if (path.endsWith(".js")) mimetype = "text/javascript";
         if (path.endsWith(".css")) mimetype = "text/css";
         if (path.endsWith(".png")) mimetype = "image/png";
-        if (path.endsWith(".ico")) mimetype = "image/vnd.microsoft.icon";
+        if (path.endsWith(".ico")) mimetype = "image/x-icon";
         if (path.equals("www"+File.separator)) mimetype = "text/html";
 
         if (mimetype.startsWith("text")) mimetype+="; charset=utf-8";

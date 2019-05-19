@@ -36,7 +36,11 @@ public class HTTPConnection  {
 
         tcpConnection.sendString(value);
     }
-        public synchronized void CloseConnection()
+    public synchronized void sendBytes(byte[] value){
+
+        tcpConnection.sendBytes(value);
+    }
+    public synchronized void CloseConnection()
     {
         getTcpConnection().disconnected();
     }

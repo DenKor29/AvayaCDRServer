@@ -14,7 +14,10 @@
 
 <form name="findnumber" method="get" style="border:3px double">
   <p><b>Поле:</b>
-   <input type="text" id="day" name="key" value="$findnumber.key$" size="10">
+   <select name="key" id="key" size="1">
+   $findnumber.list$
+    </select>
+
    <b>Значение:</b>
    <input type="text" id="month" name="value" value="$findnumber.value$"  size="10">
   </p>

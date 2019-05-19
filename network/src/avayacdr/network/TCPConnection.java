@@ -10,7 +10,7 @@ public class TCPConnection {
     private final TCPConnectionListener eventListener;
     private final Thread rxThread;
     private final BufferedReader in;
-    private final BufferedWriter out;
+    private final OutputStream out;
 
 
     public TCPConnection(TCPConnectionListener eventListener,String ipAddr,int port) throws IOException {
@@ -22,7 +22,8 @@ public class TCPConnection {
         this.eventListener = eventListener;
 
         in =  new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("windows-1251")));
-        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
+        //out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8")));
+        out = socket.getOutputStream();
 
 
         rxThread = new Thread(new Runnable() {
@@ -48,6 +49,18 @@ public class TCPConnection {
         rxThread.start();
     }
     public  synchronized void sendString(String value) {
+
+        try {
+            sendBytes(value.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            eventListener.onException(TCPConnection.this,e);
+        }
+
+
+    }
+    public  synchronized void sendBytes(byte[] value) {
+
+        if (value == null) return;
 
         try {
             out.write(value);

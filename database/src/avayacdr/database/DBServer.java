@@ -173,7 +173,7 @@ public class DBServer implements DBConnectionListener {
 
 
         String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable
-                + " WHERE " + Field +" = '" + Key +"';";
+                + " WHERE " + Field +" LIKE '" + Key +"%';";
 
         sendQuery(httpRequest,query,false);
     }
