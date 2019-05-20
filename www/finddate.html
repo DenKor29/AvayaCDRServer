@@ -8,11 +8,14 @@
     <script type="text/javascript" src="js/main.js" defer></script>
 
 </head>
-
 <body>
-<h1> <a href="index.html">Оглавление.</a> </h1>
+<p>
+<h1> <img align="left" src="icon.png"/> <a href="index.html">Оглавление.</a> </h1>
 <br>
+</p>
 
+<p>
+    <br>
 <form name="finddate" method="get" style="border:3px double">
   <p><b>День:</b>
    <input type="text" id="day" name="day" value="$finddate.day$" size="2">
@@ -24,6 +27,8 @@
   <p><input type="submit" value="Применить">
    <input type="reset" value="Сбросить"></p>
  </form>
+</p>
+
 <h1> Мониторинг. Количество записей: $COUNTCDR$. </h1> 
  
  <a href="#" id="divTblDate" onclick='anichange("divTblDate");' >Таблица</a>

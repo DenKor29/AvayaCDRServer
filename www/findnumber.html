@@ -9,11 +9,16 @@
 
 </head>
 
-<body>
-<br>
-<h1> <a href="index.html">Оглавление.</a> </h1> 
 
-<form name="findnumber" method="get" style="border:3px double">
+<body>
+<p>
+<h1> <img align="left" src="icon.png"/> <a href="index.html">Оглавление.</a> </h1>
+<br>
+</p>
+
+<p>
+    <br>
+    <form name="findnumber" method="get" style="border:3px double">
   <p><b>Поле:</b>
    <select name="key" id="key" size="1">
    $findnumber.list$
@@ -25,7 +30,8 @@
   <p><input type="submit" value="Применить">
    <input type="reset" value="Сбросить"></p>
  </form>
-<h1> Мониторинг. Количество записей: $COUNTCDR$. </h1> 
+<h1> Мониторинг. Количество записей: $COUNTCDR$. </h1>
+</p>
 
 <a href="#" id="divTblNumber" onclick='anichange("divTblNumber");' >Таблица</a>
  <div id="divIdTblNumber" style="display: none">
