@@ -123,8 +123,6 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
                    cdrHttpServer.start(httpport, httptimeoutacept);
                    Running = true;
 
-                   //String testCDRValue = "150219 0235 0006 9     *62 *52               2352    984951220555             0   001 012 4 ";
-                   //onMessageString(null,testCDRValue);
 
                }
             }

@@ -45,12 +45,7 @@ public class ConfigurationSettings {
 
     public int getInt(String key, int defvalue)  {
 
-        try {
-            Integer.valueOf(key);
-            return Integer.parseInt(get(key,String.format("%d",defvalue)));
-        } catch (NumberFormatException e) {
-            return defvalue;
-        }
+        return Util.GetIntFromString(key,defvalue);
 
     }
 

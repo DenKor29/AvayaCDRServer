@@ -1,5 +1,7 @@
 package avayacdr.http;
 
+import avayacdr.core.Util;
+
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -92,14 +94,7 @@ public class HTTPRequest {
 
     public int GetParametersInt(String name){
 
-        int result;
-        try {
-           result = Integer.parseInt(GetParameters(name));
-        } catch (NumberFormatException e){
-            result = 0;
-        }
-
-        return result;
+       return Util.GetIntFromString(GetParameters(name));
     }
 
     public  String GetPatch()

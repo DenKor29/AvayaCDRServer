@@ -9,24 +9,10 @@ public class HTTPResponse {
     private String status;
 
 
-    private String body;
-
-
-
 
     public HTTPResponse() {
         this.headers = new LinkedHashMap< String, String> ();
         this.status = "HTTP/1.1 200 OK\n";
-        this.body = "";
-
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public String getBody() {
-        return body;
     }
 
 

@@ -35,15 +35,7 @@ public class BaseCDRData {
     }
     protected final int GetFieldCDRInt(String value, int begin, int end, int defvalue)
     {
-        String fieldCDR = GetFieldCDR(value,begin,end);
-        int result = 0;
-
-        try {
-            result = Integer.parseInt(fieldCDR);
-        }
-        catch (NumberFormatException e) { result = defvalue;};
-
-        return result;
+        return Util.GetIntFromString(GetFieldCDR(value,begin,end));
     }
 
     protected final void SetFieldCDRTime(String value, String dateformat,int begin, int end)

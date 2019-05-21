@@ -1,6 +1,7 @@
 package avayacdr.database;
 
 import avayacdr.core.AvayaCDRData;
+import avayacdr.core.Util;
 import avayacdr.http.HTTPRequest;
 
 import java.sql.*;
@@ -174,13 +175,7 @@ public class DBServer implements DBConnectionListener {
         String locValue = Value;
         if (Key.equals("Duration"))
         {
-            int val;
-
-            try {
-                val =  Integer.parseInt(Value)/6;
-            } catch (NumberFormatException e){
-                val = 0;
-            }
+            int val = Util.GetIntFromString(Value)/6;
             locValue = ""+ val;
         }
 

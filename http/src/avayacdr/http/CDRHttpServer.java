@@ -3,6 +3,7 @@ package avayacdr.http;
 import avayacdr.application.ApplicationServer;
 import avayacdr.application.ApplicationServerListener;
 import avayacdr.core.AvayaCDRData;
+import avayacdr.core.Util;
 import avayacdr.network.TCPConnection;
 
 import java.io.*;
@@ -14,6 +15,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+
+import static avayacdr.core.Util.GetOperandName;
 
 public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionListener{
 
@@ -179,7 +182,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
                 ResponseTextBody = ResponseTextBody.replace("$finddate.value$",""+httpRequest.getValue());
 
             };
-            httpResponse.setBody(ResponseTextBody);
+
             countBody = GetBytesResponse(ResponseTextBody);
         }
         }
@@ -317,24 +320,13 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         return stringBuilder.toString();
 
     }
-    private String GetOperandName(int i)
-    {
-        switch (i){
-            case 0: {return "=";}
-            case 1: {return ">";}
-            case 2: {return "<";}
-            case 3: {return ">=";}
-            case 4: {return "<=";}
-        }
-        return "";
-    }
 
 
     private String GetOpFiedListResponse(String Key) {
 
         LinkedHashMap <String,String> list = new LinkedHashMap <String,String>();
 
-        for (int i=0;i<5;i++)  list.put(""+i,GetOperandName(i));
+        for (int i=0;i<5;i++)  list.put(""+i, Util.GetOperandName(i));
         return GetListResponse(Key,list);
        }
 
