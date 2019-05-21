@@ -105,10 +105,11 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
             int month = httpRequest.getMonth();
             int year = httpRequest.getYear();
             String key = httpRequest.getKey().trim();
+            int opkey = httpRequest.getOpKey();
             String value = httpRequest.getValue().trim();
             LocalDateTime EndTime = LocalDateTime.now();
             if ((day != 0) && (month !=0) && (year !=0)) EndTime=LocalDateTime.of(year,month,day,0,0).minusDays(-1);
-            eventcdr.onFindDBDateZapros(httpRequest,EndTime.minusDays(1),EndTime.minusSeconds(1),key,value);
+            eventcdr.onFindDBDateZapros(httpRequest,EndTime.minusDays(1),EndTime.minusSeconds(1),key,value,opkey);
 
         } else SendResponseConnection(httpRequest,null);
 
@@ -164,8 +165,11 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
                     ResponseTextBody = ResponseTextBody.replace("$BaseCDRList$", GetCDRResponse(cdrData));
                 }
 
-                    ResponseTextBody = ResponseTextBody.replace("$finddate.list$" ,""
-                            +GetFiedListResponse(httpRequest.getKey(),httpRequest.getValue()));
+                ResponseTextBody = ResponseTextBody.replace("$finddate.list$" ,""
+                        +GetFiedListResponse(httpRequest.getKey()));
+
+                ResponseTextBody = ResponseTextBody.replace("$finddate.oplist$" ,""
+                        +GetOpFiedListResponse(""+httpRequest.getOpKey()));
 
 
                 ResponseTextBody = ResponseTextBody.replace("$finddate.day$" ,""+httpRequest.getDay());
@@ -173,6 +177,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
                 ResponseTextBody = ResponseTextBody.replace("$finddate.year$",""+httpRequest.getYear());
                 ResponseTextBody = ResponseTextBody.replace("$finddate.key$",""+httpRequest.getKey());
                 ResponseTextBody = ResponseTextBody.replace("$finddate.value$",""+httpRequest.getValue());
+
             };
             httpResponse.setBody(ResponseTextBody);
             countBody = GetBytesResponse(ResponseTextBody);
@@ -298,22 +303,51 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
         return null;
     }
 
-    private String GetFiedListResponse(String Key,String Value) {
+    private String GetListResponse(String Key,LinkedHashMap <String,String> list){
+
         StringBuilder stringBuilder = new StringBuilder();
+
+
+        for (HashMap.Entry<String, String> entry : list.entrySet()) {
+            String strSelect = "";
+            if (entry.getKey().equals(Key)) strSelect = "selected ";
+            stringBuilder.append("<option "+strSelect+ "value='"+entry.getKey()+"'>" +entry.getValue()+"</option>");
+        }
+
+        return stringBuilder.toString();
+
+    }
+    private String GetOperandName(int i)
+    {
+        switch (i){
+            case 0: {return "=";}
+            case 1: {return ">";}
+            case 2: {return "<";}
+            case 3: {return ">=";}
+            case 4: {return "<=";}
+        }
+        return "";
+    }
+
+
+    private String GetOpFiedListResponse(String Key) {
+
         LinkedHashMap <String,String> list = new LinkedHashMap <String,String>();
+
+        for (int i=0;i<5;i++)  list.put(""+i,GetOperandName(i));
+        return GetListResponse(Key,list);
+       }
+
+        private String GetFiedListResponse(String Key) {
+        LinkedHashMap <String,String> list = new LinkedHashMap <String,String>();
+
         list.put("CalledNumber","Иходящий");
         list.put("CallingNumber","Входящий");
         list.put("InTrkCode","Иходящий TAC");
         list.put("CodeUsed","Входящий TAC");
+        list.put("Duration","Длительность");
 
-
-        for (HashMap.Entry<String, String> entry : list.entrySet()) {
-                String strSelect = "";
-                if (entry.getKey().equals(Key)) strSelect = "selected ";
-                stringBuilder.append("<option "+strSelect+ "value='"+entry.getKey()+"'>" +entry.getValue()+"</option>");
-            }
-
-        return stringBuilder.toString();
+            return GetListResponse(Key,list);
     }
     private String GetCDRResponse(ArrayList <AvayaCDRData> cdrData) {
         StringBuilder stringBuilder = new StringBuilder();

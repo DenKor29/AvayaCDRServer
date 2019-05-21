@@ -151,7 +151,7 @@ public class DBServer implements DBConnectionListener {
         sendQuery(null,query,true);
     }
 
-    public void FindDateTimeTable(HTTPRequest httpRequest,LocalDateTime BeginTime, LocalDateTime EndTime, String Key, String Value)
+    public void FindDateTimeTable(HTTPRequest httpRequest,LocalDateTime BeginTime, LocalDateTime EndTime, String Key, String Value,int opKey)
     {
         //Не запускаем общие методы без полной инициализации класса
         if (!status) return;
@@ -159,12 +159,37 @@ public class DBServer implements DBConnectionListener {
 
         String BeginDate = LocalDateTimeToString(BeginTime);
         String EndDate = LocalDateTimeToString(EndTime);
+        String operandBegin = "";
+        String operandEnd = "";
+
+
+        switch (opKey){
+            case 0: {operandBegin = "LIKE"; operandEnd = "%"; break;}
+            case 1: {operandBegin = ">";break;}
+            case 2: {operandBegin = "<";break;}
+            case 3: {operandBegin = ">=";break;}
+            case 4: {operandBegin = "<=";break;}
+        };
+
+        String locValue = Value;
+        if (Key.equals("Duration"))
+        {
+            int val;
+
+            try {
+                val =  Integer.parseInt(Value)/6;
+            } catch (NumberFormatException e){
+                val = 0;
+            }
+            locValue = ""+ val;
+        }
 
         String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable
                 + " WHERE (Date BETWEEN '" +             BeginDate +"' AND '" + EndDate +"')"
-                + " AND (" + Key +" LIKE '" + Value +"%')";
+                + " AND (" + Key +" "+operandBegin+" '" + locValue +operandEnd+"')";
 
         sendQuery(httpRequest,query,false);
+
     }
 
     @Override

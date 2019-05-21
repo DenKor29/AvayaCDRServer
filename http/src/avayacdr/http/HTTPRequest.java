@@ -15,6 +15,7 @@ public class HTTPRequest {
     private int year;
 
     private String key;
+    private int opkey;
     private String value;
 
 
@@ -37,22 +38,14 @@ public class HTTPRequest {
     public String getKey() {
         return key;
     }
-
-
-    public String getValue() {
-        return value;
-    }
-
-
+    public int getOpKey() {return opkey; }
+    public String getValue() { return value;}
     public int getDay() {
         return day;
     }
-
-
     public int getYear() {
         return year;
     }
-
     public int getMonth() {
         return month;
     }
@@ -71,6 +64,7 @@ public class HTTPRequest {
         this.month = GetParametersInt("month");
         this.year = GetParametersInt("year");
         this.key = GetParameters("key");
+        this.opkey = GetParametersInt("opkey");
         this.value = GetParameters("value");
 
         if (day == 0 || month ==0 || year == 0) {
@@ -81,6 +75,7 @@ public class HTTPRequest {
 
         };
         if (key.isEmpty()) this.key = "CalledNumber";
+
 
 
 
