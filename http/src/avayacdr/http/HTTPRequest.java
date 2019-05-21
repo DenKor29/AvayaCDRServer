@@ -79,12 +79,10 @@ public class HTTPRequest {
             this.month = time.getMonthValue();
             this.year = time.getYear();
 
-        }
-        if (key.isEmpty() || value.isEmpty()) {
-            this.key = "CallingNumber";
-            this.value = "";
+        };
+        if (key.isEmpty()) this.key = "CalledNumber";
 
-        }
+
 
     }
 
@@ -169,7 +167,7 @@ public class HTTPRequest {
         int i = URI.indexOf("?");
         if(i == -1) return;
 
-        URI = URI.substring(i+1);
+        URI = URI.substring(i+1).replace("#","");
         String[] listParameters = URI.split("&");
         for (String param:listParameters){
             String[] listNames = param.split("=");

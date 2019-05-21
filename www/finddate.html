@@ -23,7 +23,16 @@
    <input type="text" id="month" name="month" value="$finddate.month$"  size="2">
    <b>Год:</b>
    <input type="text" id="year" name="year" value="$finddate.year$" size="4">
-  </p>
+
+    <b>Поле:</b>
+    <select name="key" id="key" size="1">
+        $finddate.list$
+    </select>
+
+    <b>Значение:</b>
+    <input type="text" id="value" name="value" value="$finddate.value$"  size="10">
+
+    </p>
   <p><input type="submit" value="Применить">
    <input type="reset" value="Сбросить"></p>
  </form>
@@ -32,6 +41,7 @@
 <h1> Мониторинг. Количество записей: $COUNTCDR$. </h1> 
  
  <a href="#" id="divTblDate" onclick='anichange("divTblDate");' >Таблица</a>
+<br>
  <div id="divIdTblDate"  style="display: none">
 <table border="1" cellpadding="15" id="table_cdr" class="sort">
  <thead>  
@@ -43,8 +53,8 @@
  <td> Длительность в сек. </td>
  <td> Cond Code </td>
  <td> Code Dial</td>
- <td> Code Used</td>
- <td> In Trk Code</td>
+ <td> Исходящий TAC</td>
+ <td> Входящий TAC</td>
  <td> Acct Code</td>
  <td> Auth Code</td>
  <td> Frl</td>

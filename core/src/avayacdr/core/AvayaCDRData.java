@@ -1,7 +1,7 @@
 package avayacdr.core;
 
 
-public class AvayCDRData extends BaseCDRData {
+public class AvayaCDRData extends BaseCDRData {
 
     public String cond_code;
     public String code_used;

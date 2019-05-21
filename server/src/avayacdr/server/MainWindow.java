@@ -3,7 +3,7 @@ package avayacdr.server;
 import avayacdr.application.ApplicationServer;
 import avayacdr.application.ApplicationServerListener;
 import avayacdr.core.BaseCDRData;
-import avayacdr.core.AvayCDRData;
+import avayacdr.core.AvayaCDRData;
 import avayacdr.core.ConfigurationSettings;
 import avayacdr.database.DBServer;
 import avayacdr.database.DBServerListener;
@@ -177,7 +177,7 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
         String nameServer = applicationServer.getNameServer();
 
         if (nameServer.startsWith("Application")) {
-            AvayCDRData baseCDRData = new AvayCDRData();
+            AvayaCDRData baseCDRData = new AvayaCDRData();
             baseCDRData.SetPropertyCDR(dbServer.getNameTable(), value);
             dbServer.AppendTableString(baseCDRData);
         };
@@ -224,18 +224,16 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
     }
 
     @Override
-    public synchronized void onRecivedCDR(DBServer dbServer, HTTPRequest httpRequest,ArrayList <AvayCDRData> cdrData) {
+    public synchronized void onRecivedCDR(DBServer dbServer, HTTPRequest httpRequest,ArrayList <AvayaCDRData> cdrData) {
             cdrHttpServer.SendResponseConnection(httpRequest,cdrData);
 
     }
 
     @Override
-    public void onFindDBDateZapros(HTTPRequest httpRequest, LocalDateTime BeginTime, LocalDateTime EndTime) {
-     dbServer.FindDateTimeTable(httpRequest,BeginTime,EndTime);
+    public void onFindDBDateZapros(HTTPRequest httpRequest, LocalDateTime BeginTime, LocalDateTime EndTime, String Key, String Value) {
+     dbServer.FindDateTimeTable(httpRequest,BeginTime,EndTime,Key,Value);
     }
 
-    @Override
-    public void onFindDBFieldZapros(HTTPRequest httpRequest, String Key, String Value) {
-     dbServer.FindFieldTable(httpRequest,Key,Value);
-    }
+
+
 }

@@ -2,9 +2,10 @@ package avayacdr.http;
 
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class HTTPResponse {
-    private HashMap< String, String> headers;
+    private LinkedHashMap< String, String> headers;
     private String status;
 
 
@@ -14,7 +15,7 @@ public class HTTPResponse {
 
 
     public HTTPResponse() {
-        this.headers = new HashMap< String, String> ();
+        this.headers = new LinkedHashMap< String, String> ();
         this.status = "HTTP/1.1 200 OK\n";
         this.body = "";
 

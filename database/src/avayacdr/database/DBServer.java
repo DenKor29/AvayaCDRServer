@@ -1,6 +1,6 @@
 package avayacdr.database;
 
-import avayacdr.core.AvayCDRData;
+import avayacdr.core.AvayaCDRData;
 import avayacdr.http.HTTPRequest;
 
 import java.sql.*;
@@ -119,7 +119,7 @@ public class DBServer implements DBConnectionListener {
         return  result;
     }
 
-    public void AppendTableString(AvayCDRData baseCDRData)
+    public void AppendTableString(AvayaCDRData baseCDRData)
     {
         //Не запускаем общие методы без полной инициализации класса
         if (!status) return;
@@ -151,7 +151,7 @@ public class DBServer implements DBConnectionListener {
         sendQuery(null,query,true);
     }
 
-    public void FindDateTimeTable(HTTPRequest httpRequest,LocalDateTime BeginTime, LocalDateTime EndTime)
+    public void FindDateTimeTable(HTTPRequest httpRequest,LocalDateTime BeginTime, LocalDateTime EndTime, String Key, String Value)
     {
         //Не запускаем общие методы без полной инициализации класса
         if (!status) return;
@@ -161,19 +161,8 @@ public class DBServer implements DBConnectionListener {
         String EndDate = LocalDateTimeToString(EndTime);
 
         String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable
-                + " WHERE Date BETWEEN '" +             BeginDate +"' AND '" + EndDate +"';";
-
-        sendQuery(httpRequest,query,false);
-    }
-    public void FindFieldTable(HTTPRequest httpRequest,String Field, String Key)
-    {
-        //Не запускаем общие методы без полной инициализации класса
-        if (!status) return;
-
-
-
-        String query = "SELECT Value,Date,Duration,CondCode,CodeDial,CodeUsed,InTrkCode,CallingNumber,CalledNumber,AcctCode,AuthCode,Frl,IxcCode,InCrtId,OutCrtId,FeatFlag,CodeReturn,LineFeed FROM " + nameTable
-                + " WHERE " + Field +" LIKE '" + Key +"%';";
+                + " WHERE (Date BETWEEN '" +             BeginDate +"' AND '" + EndDate +"')"
+                + " AND (" + Key +" LIKE '" + Value +"%')";
 
         sendQuery(httpRequest,query,false);
     }
@@ -198,11 +187,14 @@ public class DBServer implements DBConnectionListener {
     public synchronized void onResultSet(DBConnection dbConnection,HTTPRequest httpRequest, ResultSet resultSet, Statement statement) {
         try {
 
-            ArrayList <AvayCDRData> listCDRData = new ArrayList<>();
+            ArrayList <AvayaCDRData> listCDRData = new ArrayList<>();
 
             while (resultSet.next()) {
 
-                AvayCDRData baseCDRData = new AvayCDRData();
+                if (resultSet.getString("CallingNumber").trim().equals("null")) continue;
+                if (resultSet.getString("CalledNumber").trim().equals("null")) continue;
+
+                AvayaCDRData baseCDRData = new AvayaCDRData();
 
                 baseCDRData.name = nameTable;
                 baseCDRData.value = resultSet.getString("Value");
@@ -225,6 +217,7 @@ public class DBServer implements DBConnectionListener {
                 baseCDRData.line_feed = resultSet.getString("LineFeed");
 
                 listCDRData.add(baseCDRData);
+
             };
 
             eventListener.onRecivedCDR(this,httpRequest, listCDRData);
