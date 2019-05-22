@@ -10,12 +10,9 @@
 <body>
 <p>
 <h1> <img align="left" src="icon.png"/> <a href="index.html">Оглавление.</a> </h1>
-<br>
-</p>
-
-<p>
-    <br>
-<form name="finddate" method="get" style="border:3px double">
+<form name="finddate" method="get">
+    <fieldset>
+    <legend>Запрос</legend>
   <p><b>День:</b>
    <input type="text" id="day" name="day" value="$finddate.day$" size="2">
    <b>Месяц:</b>
@@ -37,6 +34,7 @@
     </p>
   <p><input type="submit" value="Применить">
    <input type="reset" value="Сбросить"></p>
+    </fieldset>
  </form>
 </p>
 
