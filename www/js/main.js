@@ -1,5 +1,3 @@
-$("#table_cdr").trigger("update");
-TableSorter.sort_column("table_cdr",1,1);
 
 function anichange(str) 
 {
