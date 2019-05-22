@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class DBServer implements DBConnectionListener {
 
-    public static final String SQLDATATIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String SQLDATATIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private Connection connection;
     private DBServerListener eventListener;

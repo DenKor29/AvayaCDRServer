@@ -37,8 +37,6 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
     private DBServer dbServer;
     private CDRHttpServer cdrHttpServer;
 
-    private ArrayList<BaseCDRData> connectionsCDR = new ArrayList<>();
-
 
     private boolean Running = false;
 
@@ -135,6 +133,8 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
                    Running = false;
                    printMessage(app.getNameServer()+" Interrupt ...");
                    app.interrupt();
+                   cdrHttpServer.interrupt();
+
                }
             }
         });

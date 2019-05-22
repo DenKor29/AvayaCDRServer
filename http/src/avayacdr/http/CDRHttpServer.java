@@ -16,8 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
-import static avayacdr.core.Util.GetOperandName;
-
 public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionListener{
 
     private ApplicationServer app;
@@ -209,7 +207,7 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
 
 
 
-        String response = httpResponse.GetResponse();
+        String response = httpResponse.GetHeaders();
 
         httpConnection.sendString(response);
         if (ResponseTextBody.isEmpty()) httpConnection.sendBytes(ResponseBody);

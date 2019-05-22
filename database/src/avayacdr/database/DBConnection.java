@@ -27,8 +27,7 @@ public class DBConnection {
 
                 try {
 
-                    //System.out.println("DBConnection create statement:"+sql);
-                    Statement statement = connection.createStatement();
+                     Statement statement = connection.createStatement();
                      if (result) {
                          ResultSet resultSet  = statement.executeQuery(sql);
                          eventListener.onResultSet(DBConnection.this, DBConnection.this.httpRequest,resultSet,statement);

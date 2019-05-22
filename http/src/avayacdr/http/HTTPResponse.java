@@ -16,12 +16,12 @@ public class HTTPResponse {
     }
 
 
-    public void SetResponseCode(String code){
+    protected void SetResponseCode(String code){
         this.status = "HTTP/1.1 " + code + "\n";
     }
 
 
-    private String GetHeaders(){
+    protected String GetHeaders(){
     StringBuilder Response = new StringBuilder();
     Response.append(status);
         for (HashMap.Entry<String, String> header : headers.entrySet()) {
@@ -31,15 +31,11 @@ public class HTTPResponse {
         return Response.toString();
     }
 
-    public String GetResponse(){
-    return GetHeaders();
-    }
-
-    public void SetHeaders(String key,String value){
+     protected void SetHeaders(String key, String value){
 
         headers.put(key,value);
     }
-    public void ClearHeaders(){
+    protected void ClearHeaders(){
 
         headers.clear();
     }
