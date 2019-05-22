@@ -232,6 +232,16 @@ public class MainWindow extends JFrame  implements ApplicationServerListener, DB
      dbServer.FindDateTimeTable(httpRequest,BeginTime,EndTime,Key,Value,opKey);
     }
 
+    @Override
+    public boolean onStatusServer(int server) {
+
+        switch (server) {
+            case 0: return Running;
+            case 1: return Running;
+            case 2: return Running;
+        }
+        return false;
+    }
 
 
 }

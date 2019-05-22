@@ -4,4 +4,5 @@ import java.time.LocalDateTime;
 
 public interface CDRHttpServerListener {
     void onFindDBDateZapros(HTTPRequest httpRequest,LocalDateTime BeginTime,LocalDateTime EndTime, String Key, String Value,int opKey);
+    boolean onStatusServer(int server);
 }

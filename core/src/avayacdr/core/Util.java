@@ -30,4 +30,10 @@ public class Util {
 
         return result;
     }
+
+    public static String GetStatusServer(boolean status)
+    {
+        if (status) return "<span class='greentext'> Запущен. </span>";
+        return "<span class='redtext'> Остановлен. </span>";
+    }
 }

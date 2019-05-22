@@ -166,20 +166,26 @@ public class CDRHttpServer  implements ApplicationServerListener,HTTPConnectionL
                 if (cdrData != null) {
                     ResponseTextBody = ResponseTextBody.replace("$COUNTCDR$", "" + cdrData.size());
                     ResponseTextBody = ResponseTextBody.replace("$BaseCDRList$", GetCDRResponse(cdrData));
+
+
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.list$", ""
+                            + GetFiedListResponse(httpRequest.getKey()));
+
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.oplist$", ""
+                            + GetOpFiedListResponse("" + httpRequest.getOpKey()));
+
+
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.day$", "" + httpRequest.getDay());
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.month$", "" + httpRequest.getMonth());
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.year$", "" + httpRequest.getYear());
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.key$", "" + httpRequest.getKey());
+                    ResponseTextBody = ResponseTextBody.replace("$finddate.value$", "" + httpRequest.getValue());
                 }
 
-                ResponseTextBody = ResponseTextBody.replace("$finddate.list$" ,""
-                        +GetFiedListResponse(httpRequest.getKey()));
+                ResponseTextBody = ResponseTextBody.replace("$STATUSAPPSERVER$", "" + Util.GetStatusServer(eventcdr.onStatusServer(0)));
+                ResponseTextBody = ResponseTextBody.replace("$STATUSDBSERVER$", "" + Util.GetStatusServer(eventcdr.onStatusServer(1)));
+                ResponseTextBody = ResponseTextBody.replace("$STATUSHTTPSERVER$", "" + Util.GetStatusServer(eventcdr.onStatusServer(2)));
 
-                ResponseTextBody = ResponseTextBody.replace("$finddate.oplist$" ,""
-                        +GetOpFiedListResponse(""+httpRequest.getOpKey()));
-
-
-                ResponseTextBody = ResponseTextBody.replace("$finddate.day$" ,""+httpRequest.getDay());
-                ResponseTextBody = ResponseTextBody.replace("$finddate.month$",""+httpRequest.getMonth());
-                ResponseTextBody = ResponseTextBody.replace("$finddate.year$",""+httpRequest.getYear());
-                ResponseTextBody = ResponseTextBody.replace("$finddate.key$",""+httpRequest.getKey());
-                ResponseTextBody = ResponseTextBody.replace("$finddate.value$",""+httpRequest.getValue());
 
             };
 
